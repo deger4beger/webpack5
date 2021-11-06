@@ -1,5 +1,33 @@
-.wrapper {
+@import "~normalize.css";
+@import "font.css";
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	width: 60%;
+	margin: 0 auto;
+	font-family: "Josefin Sans"
+}
+
+.title {
 	text-align: center;
 	font-size: 30px;
 	margin-top: 30px;
+}
+
+
+/* idk how to setup this piece of shit fucking inline css url import shit */
+
+.logoWrapper {
+	margin-top: 30px;
+}
+
+.logo {
+	background-image: url("../assets/logo.png");
+	background-size: cover;
+	width: 200px;
+	height: 230px;
+	margin: 0 auto;
 }
