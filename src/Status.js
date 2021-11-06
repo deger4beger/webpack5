@@ -1,4 +1,4 @@
-class Status {
+export default class Status {
 	constructor(status) {
 		this.status = status
 		this.date = new Date()

@@ -1,4 +1,4 @@
-function createStats() {
+function createAnalytics() {
 	let counter = 0
 	let isStopped = false
 
@@ -14,11 +14,11 @@ function createStats() {
 
 		getStats() {
 			if (isStopped) {
-				return "Statistics have been stopped"
+				return `Statistics have been stopped with total ${counter} clicks`
 			}
 			return counter
 		}
 	}
 }
 
-window.stats = createStats()
+window.stats = createAnalytics()
