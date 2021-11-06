@@ -4,16 +4,18 @@ const CopyWebpackPlugin = require("copy-webpack-plugin")
 const MiniCssExtractPlugin = require("mini-css-extract-plugin")
 const OptimizeCssAssetsPlugin = require("optimize-css-assets-webpack-plugin")
 const TerserWebpackPlugin = require("terser-webpack-plugin")
+const ESLintPlugin = require("eslint-webpack-plugin")
+const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer")
 
 const PATHS = {
 	src: path.resolve(__dirname, "src"),
 	build: path.resolve(__dirname, "dist")
 }
-
 const DEV_MODES = {
 	isDev: process.env.NODE_ENV === "development",
 	isProd: process.env.NODE_ENV === "production"
 }
+const filename = ext => DEV_MODES.isDev ? `[name].${ext}` : `[name].[hash].${ext}`
 
 const optimization = () => {
 	const config = {
@@ -45,22 +47,47 @@ const cssLoaders = loader => {
     return loaders
 }
 
-const babelLoaders = loader => {
-	const loaders = {
-      	loader: "babel-loader",
-      	options: {
-        	presets: [
-        		"@babel/preset-env",
-        	] // add plugins if using experimental syntax
-      	}
+const babelOptions = loader => {
+	const options = {
+    	presets: [
+    		"@babel/preset-env",
+    	] // add plugins if using experimental syntax
     }
     if (loader) {
-    	loaders.options.presets.push(loader)
+    	options.presets.push(loader)
     }
-    return loaders
+    return options
 }
 
-const filename = ext => DEV_MODES.isDev ? `[name].${ext}` : `[name].[hash].${ext}`
+const getPlugins = () => {
+	const plugins = [
+		new HTMLWebpackPlugin({
+			template: "./index.html"
+		}),
+		new CopyWebpackPlugin({
+            patterns: [
+                {
+                    from: path.resolve(__dirname, 'src/assets/favicon.ico'),
+                    to: path.resolve(__dirname, 'dist/assets/')
+                }
+            ]
+ 		}),
+ 		new MiniCssExtractPlugin({
+ 			filename: filename("css")
+ 		})
+	]
+	if (DEV_MODES.isDev) {
+		plugins.push(
+			new ESLintPlugin({
+				exclude: ["node_modules", "webpack.config.js"]
+			})
+		)
+	}
+	if (DEV_MODES.isProd) {
+		plugins.push(new BundleAnalyzerPlugin())
+	}
+	return plugins
+}
 
 module.exports = {
 	context: PATHS.src,
@@ -81,27 +108,13 @@ module.exports = {
 			"@": PATHS.src
 		}
 	},
-	plugins: [
-		new HTMLWebpackPlugin({
-			template: "./index.html"
-		}),
-		new CopyWebpackPlugin({
-            patterns: [
-                {
-                    from: path.resolve(__dirname, 'src/assets/favicon.ico'),
-                    to: path.resolve(__dirname, 'dist/assets/')
-                }
-            ]
- 		}),
- 		new MiniCssExtractPlugin({
- 			filename: filename("css")
- 		})
-	],
+	plugins: getPlugins(),
 	optimization: optimization(),
 	devServer: {
 		port: 4200,
 		open: true
 	},
+	devtool: DEV_MODES.isDev ? 'source-map' : false,
 	module: {
 		rules: [
 			{
@@ -138,17 +151,26 @@ module.exports = {
 			{
 		        test: /\.m?js$/,
 		        exclude: /node_modules/,
-		        use: babelLoaders()
+		        use: {
+		        	loader: "babel-loader",
+		        	options: babelOptions()
+				}
 		    },
 		    {
 		        test: /\.m?ts$/,
 		        exclude: /node_modules/,
-		        use: babelLoaders("@babel/preset-typescript")
+		        use: {
+		        	loader: "babel-loader",
+		        	options: babelOptions("@babel/preset-typescript")
+				}
 		    },
 		    {
 		        test: /\.jsx$/,
 		        exclude: /node_modules/,
-		        use: babelLoaders("@babel/preset-react")
+		        use: {
+		        	loader: "babel-loader",
+		        	options: babelOptions("@babel/preset-react")
+				}
 		    }
 		]
 	}
