@@ -32,21 +32,51 @@ const optimization = () => {
 	return config
 }
 
+const cssLoaders = loader => {
+	const loaders = [
+      	{
+        	loader: MiniCssExtractPlugin.loader
+      	},
+      	"css-loader"
+    ]
+    if (loader) {
+    	loaders.push(loader)
+    }
+    return loaders
+}
+
+const babelLoaders = loader => {
+	const loaders = {
+      	loader: "babel-loader",
+      	options: {
+        	presets: [
+        		"@babel/preset-env",
+        	] // add plugins if using experimental syntax
+      	}
+    }
+    if (loader) {
+    	loaders.options.presets.push(loader)
+    }
+    return loaders
+}
+
+const filename = ext => DEV_MODES.isDev ? `[name].${ext}` : `[name].[hash].${ext}`
+
 module.exports = {
 	context: PATHS.src,
 	mode: "development",
 	entry: {
-		main: "./index.js",
-		statistics: "./analytics.js"
+		main: ["@babel/polyfill", "./index.jsx"],
+		statistics: "./analytics.ts"
 	},
 	output: {
-		filename: "[name].[contenthash].js",
+		filename: filename("js"),
 		path: PATHS.build,
 		clean: true,
 		assetModuleFilename: 'assets/[name][ext][query]'
 	},
 	resolve: {
-		extensions: [".js", ".json"],
+		extensions: [".js", ".json", ".ts"],
 		alias: {
 			"@": PATHS.src
 		}
@@ -64,7 +94,7 @@ module.exports = {
             ]
  		}),
  		new MiniCssExtractPlugin({
- 			filename: "[name].css"
+ 			filename: filename("css")
  		})
 	],
 	optimization: optimization(),
@@ -76,12 +106,15 @@ module.exports = {
 		rules: [
 			{
 				test: /\.css$/,
-				use: [
-		          	{
-		            	loader: MiniCssExtractPlugin.loader
-		          	},
-		          	"css-loader"
-		        ],
+				use: cssLoaders()
+			},
+			{
+				test: /\.less$/,
+				use: cssLoaders("less-loader")
+			},
+			{
+				test: /\.s[ac]ss$/,
+				use: cssLoaders("sass-loader")
 			},
 			{
 			    test: /\.(jpe?g|png|gif|svg)$/i,
@@ -101,7 +134,22 @@ module.exports = {
 			{
 				test: /\.csv$/,
 				loader: "csv-loader"
-			}
+			},
+			{
+		        test: /\.m?js$/,
+		        exclude: /node_modules/,
+		        use: babelLoaders()
+		    },
+		    {
+		        test: /\.m?ts$/,
+		        exclude: /node_modules/,
+		        use: babelLoaders("@babel/preset-typescript")
+		    },
+		    {
+		        test: /\.jsx$/,
+		        exclude: /node_modules/,
+		        use: babelLoaders("@babel/preset-react")
+		    }
 		]
 	}
 }

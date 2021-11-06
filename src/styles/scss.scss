@@ -1,0 +1,12 @@
+$border: 1px solid darkblue;
+
+.sassWrapper {
+	border: $border;
+	margin-top: 20px;
+	padding: 10px;
+
+	.sass {
+		color: blue;
+	}
+}
+
