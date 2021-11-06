@@ -2,6 +2,8 @@ const path = require("path")
 const HTMLWebpackPlugin = require("html-webpack-plugin")
 const CopyWebpackPlugin = require("copy-webpack-plugin")
 const MiniCssExtractPlugin = require("mini-css-extract-plugin")
+const OptimizeCssAssetsPlugin = require("optimize-css-assets-webpack-plugin")
+const TerserWebpackPlugin = require("terser-webpack-plugin")
 
 const PATHS = {
 	src: path.resolve(__dirname, "src"),
@@ -11,6 +13,23 @@ const PATHS = {
 const DEV_MODES = {
 	isDev: process.env.NODE_ENV === "development",
 	isProd: process.env.NODE_ENV === "production"
+}
+
+const optimization = () => {
+	const config = {
+		splitChunks: {
+			chunks: "all"
+		},
+		runtimeChunk: 'single'
+	}
+	if (DEV_MODES.isProd) {
+		config.minimizer = [
+			new OptimizeCssAssetsPlugin(),
+			new TerserWebpackPlugin()
+		]
+	}
+
+	return config
 }
 
 module.exports = {
@@ -48,12 +67,7 @@ module.exports = {
  			filename: "[name].css"
  		})
 	],
-	optimization: {
-		splitChunks: {
-			chunks: "all"
-		},
-		runtimeChunk: 'single'
-	},
+	optimization: optimization(),
 	devServer: {
 		port: 4200,
 		open: true
