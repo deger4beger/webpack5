@@ -5,15 +5,18 @@
     "author": "deger4beger <mr.lex1234@gmail.com>",
     "license": "MIT",
     "scripts": {
-        "dev": "webpack --mode development",
-        "build": "webpack --mode production",
-        "start": "webpack serve"
+        "dev": "cross-env NODE_ENV=development webpack --mode development",
+        "build": "cross-env NODE_ENV=production webpack --mode production",
+        "start": "cross-env NODE_ENV=development webpack serve --mode development --open"
     },
     "devDependencies": {
+        "copy-webpack-plugin": "^9.0.1",
+        "cross-env": "^7.0.3",
         "css-loader": "^6.5.1",
         "csv-loader": "^3.0.3",
         "file-loader": "^6.2.0",
         "html-webpack-plugin": "^5.5.0",
+        "mini-css-extract-plugin": "^2.4.4",
         "style-loader": "^3.3.1",
         "webpack": "^5.62.1",
         "webpack-cli": "^4.9.1",
