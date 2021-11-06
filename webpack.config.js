@@ -34,10 +34,7 @@ module.exports = {
 	},
 	plugins: [
 		new HTMLWebpackPlugin({
-			template: "./index.html",
-			minify: {
-				collapseWhitespace: DEV_MODES.isProd
-			}
+			template: "./index.html"
 		}),
 		new CopyWebpackPlugin({
             patterns: [
@@ -67,12 +64,7 @@ module.exports = {
 				test: /\.css$/,
 				use: [
 		          	{
-		            	loader: MiniCssExtractPlugin.loader,
-		            	options: {
-		            		publicPath: (resourcePath, context) => {
-					          	return path.relative(path.dirname(resourcePath), context) + "/";
-					        }
-		            	}
+		            	loader: MiniCssExtractPlugin.loader
 		          	},
 		          	"css-loader"
 		        ],
@@ -81,6 +73,13 @@ module.exports = {
 			    test: /\.(jpe?g|png|gif|svg)$/i,
                 type: "asset/resource"
 			},
+			{
+		        test: /\.(woff|woff2|eot|ttf|otf)$/i,
+		        type: 'asset/resource',
+		        generator: {
+			    	filename: 'assets/fonts/[hash][ext][query]'
+			    }
+		    },
 			{
 				test: /\.xml$/,
 				loader: "xml-loader"
